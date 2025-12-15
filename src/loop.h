@@ -17,6 +17,6 @@
 #define OUT_IFERR 0x20	/* Output only displayed on error */
 #define OUT_ERR   0x40	/* Error found in output */
 
-int loop(char *, u_int, int, char *, int, int, char *, u_int, char *, int);
+int loop(char *, u_int, int, char *, int, int, char *, u_int, char *, int, int);
 
 #endif

@@ -13,9 +13,11 @@
 # define _PATH_DEVNULL "/dev/null"
 #endif
 #include <fcntl.h>
+#include <stdlib.h>
 #include <sys/time.h>		/* FreeBSD wants this for the next one.. */
 #include <sys/resource.h>
 #include <signal.h>
+#include <time.h>
 
 #include "exec.h"
 #include "term.h"
@@ -23,12 +25,12 @@
 static char const rcsid[] = "@(#)$Id$";
 
 pid_t
-exec(fd0, fd1, fd2, target, argv, timeout)
-int *fd0, *fd1, *fd2;
+exec(fd0, fd1, fd2, target, argv, timeout, stagger)
+int *fd0, *fd1, *fd2, stagger;
 u_int timeout;
 char *target, **argv;
 {
-    int in[2], out[2], err[2];
+    int in[2], out[2], err[2], millis;
     struct rlimit fdlimit;
     pid_t child;
 
@@ -95,6 +97,8 @@ char *target, **argv;
 	fdlimit.rlim_cur = 1024;
       }
 
+    if (stagger > 0) millis = abs(rand()) % stagger;
+
     /* fork() */
     child = fork();
 
@@ -119,6 +123,7 @@ char *target, **argv;
     else
       {
 	struct sigaction sa;
+	struct timespec spec;
 	int fd;
 	char error[1024];
 
@@ -137,6 +142,12 @@ char *target, **argv;
 	sigaction(SIGTSTP, &sa, NULL);
 	sigaction(SIGCONT, &sa, NULL);
 	sigaction(SIGWINCH, &sa, NULL);
+
+	if (stagger > 0)
+	  {
+	    spec.tv_sec = (time_t) millis / 1000;
+	    spec.tv_nsec = (((long) millis) % 1000) * 1000 * 1000;
+	  }
 
         /* Start a new process group to allow mass-signaling by the parent */
         if (setpgid(0, 0) < 0)
@@ -195,6 +206,7 @@ char *target, **argv;
 	if (dup(err[1]) == -1) abort();
 	if (close(out[1]) == -1) abort();
 	if (fd2 != NULL && close(err[1]) == -1) abort();
+	if (stagger > 0 && nanosleep(&spec, NULL) == -1) abort();
 
 	alarm(timeout);
 
