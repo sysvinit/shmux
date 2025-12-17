@@ -64,7 +64,7 @@ static int spawn_mode;
 static int failure_mode = SPAWN_MORE; /* Historical default */
 
 static void shmux_sigint(int);
-static void setup_fdlimit(int, int);
+static void setup_fdlimit(int, int *);
 static void init_child(struct child *);
 static void parse_child(char *, int, int, int, struct child *, int, char *);
 static void parse_fping(char *);
@@ -93,7 +93,7 @@ int sig;
 */
 void
 setup_fdlimit(fdfactor, max)
-int fdfactor, max;
+int fdfactor, *max;
 {
     struct rlimit fdlimit;
 
@@ -110,9 +110,9 @@ int fdfactor, max;
 	eprint("getrlimit(RLIMIT_NOFILE): %s", strerror(errno));
 	exit(RC_ERROR);
       }
-    if (fdlimit.rlim_cur < (max + 3) * fdfactor + 10)
+    if (fdlimit.rlim_cur < (*max + 3) * fdfactor + 10)
       {
-	fdlimit.rlim_cur = (max + 3) * fdfactor + 10;
+	fdlimit.rlim_cur = (*max + 3) * fdfactor + 10;
 	if (fdlimit.rlim_cur > fdlimit.rlim_max)
 	    fdlimit.rlim_cur = fdlimit.rlim_max;
 
@@ -125,13 +125,13 @@ int fdfactor, max;
 	    eprint("getrlimit(RLIMIT_NOFILE): %s", strerror(errno));
 	    eprint("Unable to validate parallelism factor.");
 	  }
-	else if (fdlimit.rlim_cur < (max + 3) * fdfactor + 10)
+	else if (fdlimit.rlim_cur < (*max + 3) * fdfactor + 10)
 	  {
 	    int old;
 
-	    old = max;
-	    max = ((fdlimit.rlim_cur - 10) / fdfactor) - 3;
-	    eprint("Reducing parallelism factor to %d (from %d) because of system limitation.", max, old);
+	    old = *max;
+	    *max = ((fdlimit.rlim_cur - 10) / fdfactor) - 3;
+	    eprint("Reducing parallelism factor to %d (from %d) because of system limitation.", *max, old);
 	  }
       }
 	
@@ -824,7 +824,7 @@ u_int ctimeout, utest;
         failure_mode = SPAWN_QUIT;
 
     /* review process fd limit */
-    setup_fdlimit((odir == NULL) ? 3 : 5, max);
+    setup_fdlimit((odir == NULL) ? 3 : 5, &max);
 
     /* Allocate and initialize the control structures */
     pfd = (struct pollfd *) malloc((max+2)*3 * sizeof(struct pollfd));
