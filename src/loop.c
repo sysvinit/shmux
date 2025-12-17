@@ -78,8 +78,7 @@ static void set_cmdstatus(int);
 **	SIGINT handler
 */
 static void
-shmux_sigint(sig)
-int sig;
+shmux_sigint(int sig)
 {
   got_sigint += 1;
 }
@@ -92,8 +91,7 @@ int sig;
 **	achieve when we run out.
 */
 void
-setup_fdlimit(fdfactor, max)
-int fdfactor, max;
+setup_fdlimit(int fdfactor, int max)
 {
     struct rlimit fdlimit;
 
@@ -163,8 +161,7 @@ int fdfactor, max;
 **	Used to initialize a child structure whenever a new child is spawned.
 */
 static void
-init_child(kid)
-struct child *kid;
+init_child(struct child *kid)
 {
     kid->num = target_getnum();
     kid->test = kid->passed = 0;
@@ -187,10 +184,7 @@ struct child *kid;
 **	Parse output from children
 */
 static void
-parse_child(name, isfping, verbose_tests, analyzer, kid, std, buffer)
-char *name, *buffer;
-int isfping, verbose_tests, analyzer, std;
-struct child *kid;
+parse_child(char *name, int isfping, int verbose_tests, int analyzer, struct child *kid, int std, char *buffer)
 {
     char *start, *nl;
 
@@ -425,8 +419,7 @@ struct child *kid;
 **	Parse one line of output from fping
 */
 static void
-parse_fping(line)
-char *line;
+parse_fping(char *line)
 {
     char *space;
 		  
@@ -468,9 +461,7 @@ char *line;
 **	Handle user input
 */
 static void
-parse_user(c, children, max)
-int c, max;
-struct child *children;
+parse_user(int c, struct child *children, int max)
 {
     char *cmd;
 
@@ -674,8 +665,7 @@ struct child *children;
 **	Create an output file.
 */
 int
-output_file(fname, dir, name, extension)
-char **fname, *dir, *name, *extension;
+output_file(char **fname, char *dir, char *name, char *extension)
 {
     int sz, fd;
 
@@ -714,9 +704,7 @@ char **fname, *dir, *name, *extension;
 **	Show an output file.
 */
 void
-output_show(name, fd, fname, type)
-char *name, *fname;
-int fd, type;
+output_show(char *name, int fd, char *fname, int type)
 {
     FILE *f;
     int fd2, cont;
@@ -767,8 +755,7 @@ int fd, type;
 **	Use to define whether a command was successful or not.
 */
 static void
-set_cmdstatus(result)
-int result;
+set_cmdstatus(int result)
 {
     assert( spawn_mode != SPAWN_ONE );
 
@@ -792,10 +779,7 @@ int result;
 **	targets with a simple echo command, and finally running a command.
 */
 int
-loop(cmd, ctimeout, max, spawn, fail, outmode, odir, utest, ping, test, stagger)
-char *cmd, *spawn, *ping, *odir;
-int max, fail, outmode, test, stagger;
-u_int ctimeout, utest;
+loop(char *cmd, u_int ctimeout, int max, char *spawn, int fail, int outmode, char *odir, u_int utest, char *ping, int test, int stagger)
 {
     struct child *children;
     struct pollfd *pfd;
