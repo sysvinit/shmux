@@ -134,28 +134,6 @@ int fdfactor, *max;
 	    eprint("Reducing parallelism factor to %d (from %d) because of system limitation.", *max, old);
 	  }
       }
-	
-#if defined(__NetBSD__)
-    /* See NetBSD PR#17507 */
-    {
-      int i, *fds;
-      
-      fds = (int *) malloc(fdlimit.rlim_cur * sizeof(int));
-      if (fds == NULL)
-	{
-	  perror("malloc failed");
-	  exit(RC_ERROR);
-	}
-      i = -1;
-      do
-	  fds[++i] = dup(0);
-      while (i < fdlimit.rlim_cur && fds[i] != -1);
-      dprint("Duped %d fds to get around NetBSD's broken poll(2)", i);
-      while (i >= 0)
-	  close(fds[i--]);
-      free(fds);
-    }
-#endif
 }
 
 /*
