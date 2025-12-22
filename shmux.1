@@ -35,6 +35,8 @@ shmux - Shell Multiplexor
 .B -P \fItimeout\fP
 ] [
 .B -T \fItimeout\fP
+] [
+.B -z \fItimeout\fP
 ]
 .B -c \fIcommand\fP
 [ - | \fItargets...\fP ]
@@ -190,6 +192,12 @@ used), output for failed tests will be displayed to help the user
 understand what went wrong.
 .IP "\fB-T \fItimeout\fP"
 Defines the test timeout in seconds.  (Implies \fB-t\fP.)
+.IP "\fB-z \fItimeout\fP"
+Random stagger when spawning children. In order to avoid a thundering
+herd problem when establishing connections to remote machines
+(e.g. shared jump hosts which perform connection startup throttling),
+sleep a random time up to \fItimeout\fP milliseconds before executing
+the command to connect to each target.
 .IP "\fB-m\fP"
 By default the output is displayed as soon as it is received.  For
 multi-line outputs, this will typically result in output from several

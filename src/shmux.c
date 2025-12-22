@@ -16,6 +16,7 @@
 #else
 # define _PATH_TMP "/tmp"
 #endif
+#include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
 #if defined(HAVE_PCRE_H)
@@ -82,6 +83,7 @@ int detailed;
     fprintf(stderr, "  -A <test>     Analyze output to determine success from failure.\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "  -o <dir>      Send the output to files under the specified directory.\n");
+    fprintf(stderr, "  -z <millisec> Randomly stagger spawning of children up to this threshold.\n");
     fprintf(stderr, "  -m            Don't mix target outputs.\n");
     fprintf(stderr, "  -b            Show bare output without target names.\n");
     fprintf(stderr, "  -B            Batch mode.\n");
@@ -98,7 +100,7 @@ main(int argc, char **argv)
 {
     int badopt, rc;
     int opt_prefix, opt_status, opt_interactive, opt_quiet, opt_internal, opt_debug;
-    int opt_ctimeout, opt_outmode, opt_maxworkers, opt_fail, opt_vtest;
+    int opt_ctimeout, opt_outmode, opt_maxworkers, opt_fail, opt_vtest, opt_stagger;
     u_int opt_test, opt_analyzer;
     char *opt_analyze, *opt_outanalysis, *opt_erranalysis;
     char *opt_spawn, *opt_command, *opt_odir, *opt_ping, *opt_rcmd;
@@ -107,6 +109,7 @@ main(int argc, char **argv)
     time_t start;
 
     myname = basename(argv[0]);
+    srand((unsigned) getpid());
 
     opt_prefix = opt_status = opt_interactive = 1;
     opt_quiet = opt_internal = opt_debug = 0;
@@ -115,7 +118,7 @@ main(int argc, char **argv)
         opt_maxworkers = atoi(getenv("SHMUX_MAX"));
     else
         opt_maxworkers = DEFAULT_MAXWORKERS;
-    opt_ctimeout = opt_fail = opt_test = opt_vtest = 0;
+    opt_ctimeout = opt_fail = opt_test = opt_vtest = opt_stagger = 0;
     opt_analyze = opt_outanalysis = opt_erranalysis = NULL;
     opt_command = opt_odir = opt_ping = NULL;
     opt_rcmd = getenv("SHMUX_RCMD");
@@ -138,7 +141,7 @@ main(int argc, char **argv)
       {
         int c;
 	
-        c = getopt(argc, argv, "a:A:bBc:C:De:E:FhmM:o:pP:qQr:sS:tT:vV");
+        c = getopt(argc, argv, "a:A:bBc:C:De:E:FhmM:o:pP:qQr:sS:tT:vVz:");
 	
         /* Detect the end of the options. */
         if (c == -1)
@@ -242,6 +245,9 @@ main(int argc, char **argv)
 		     myname, SHMUX_VERSION, pcre_version());
 #endif
 	      exit(RC_OK);
+	  case 'z':
+	      opt_stagger = atoi(optarg);
+	      break;
 	  case '?':
 	      badopt += 1;
 	      break;
@@ -271,6 +277,12 @@ main(int argc, char **argv)
     if (opt_analyzer != ANALYZE_NONE && opt_odir == NULL)
       {
 	fprintf(stderr, "%s: -o option required when using -a/-A!\n", myname);
+	exit(RC_ERROR);
+      }
+
+    if (opt_stagger < 0)
+      {
+	fprintf(stderr, "%s: Invalid -z argument!\n", myname);
 	exit(RC_ERROR);
       }
 
@@ -347,7 +359,7 @@ main(int argc, char **argv)
     /* Loop through targets/commands */
     start = time(NULL);
     rc = loop(opt_command, opt_ctimeout, opt_maxworkers, opt_spawn, opt_fail,
-	      opt_outmode, opt_odir, opt_analyzer, opt_ping, opt_test);
+	      opt_outmode, opt_odir, opt_analyzer, opt_ping, opt_test, opt_stagger);
 
     /* Summary of results unless asked to be quiet */
     if (opt_quiet == 0)

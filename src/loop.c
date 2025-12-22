@@ -792,9 +792,9 @@ int result;
 **	targets with a simple echo command, and finally running a command.
 */
 int
-loop(cmd, ctimeout, max, spawn, fail, outmode, odir, utest, ping, test)
+loop(cmd, ctimeout, max, spawn, fail, outmode, odir, utest, ping, test, stagger)
 char *cmd, *spawn, *ping, *odir;
-int max, fail, outmode, test;
+int max, fail, outmode, test, stagger;
 u_int ctimeout, utest;
 {
     struct child *children;
@@ -865,7 +865,7 @@ u_int ctimeout, utest;
 	pfd[2].fd = -1;
 	cargv[0] = "fping"; cargv[1] = "-t"; cargv[2] = ping; cargv[3] = NULL;
 	children[0].pid = exec(&(pfd[0].fd), &(pfd[1].fd), &(pfd[2].fd),
-			       NULL, cargv, 0);
+			       NULL, cargv, 0, 0);
 	if (children[0].pid == -1)
 	    /* Error message was given by exec() */
 	    spawn_mode = SPAWN_FATAL;
@@ -1159,7 +1159,7 @@ u_int ctimeout, utest;
 		    children[idx].pid = exec(NULL, &(pfd[idx*3+1].fd),
 					     &(pfd[idx*3+2].fd),
 					     target_getname(), cargv,
-					     analyzer_timeout());
+					     analyzer_timeout(), 0);
 		    if (children[idx].pid == -1)
 			  {
 			    /* Error message was given by exec() */
@@ -1228,7 +1228,8 @@ u_int ctimeout, utest;
 					     &(pfd[idx*3+2].fd),
 					     target_getname(),
                                              target_getcmd(cmd),
-					     ctimeout);
+					     ctimeout,
+					     stagger);
 		    if (children[idx].pid == -1)
 			  {
 			    /* Error message was given by exec() */
@@ -1277,7 +1278,8 @@ u_int ctimeout, utest;
 					     &(pfd[idx*3+2].fd),
 					     target_getname(),
                                              target_getcmd("echo SHMUX."),
-					     abs(test));
+					     abs(test),
+					     stagger);
 
 		    if (children[idx].pid == -1)
 		      {
