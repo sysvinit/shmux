@@ -1,3 +1,7 @@
+Changes since 1.0.3 [2019-01-02]:
+
+- Add -z for randomly staggered spawning of children (courtesy of Molly Miller)
+
 Changes since 1.0.2 [2008-12-21]:
 
 - Fix clang warnings.
