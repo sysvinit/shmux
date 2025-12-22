@@ -36,7 +36,7 @@ distclean: clean
 
 signals.h: signals.awk Makefile
 	@rm -f signals.h
-	cat /usr/include/signal.h /usr/include/sys/signal.h \
+	cat /usr/include/signal.h /usr/include/sys/signal.h /usr/include/`uname -m`-linux-*/asm/signal.h \
 		/usr/include/sys/iso/signal_iso.h \
 		/usr/include/bits/signum.h 2> /dev/null | \
 		awk -f signals.awk > signals.h
