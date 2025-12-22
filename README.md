@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/shmux/shmux.svg?branch=master)](https://travis-ci.org/shmux/shmux)
-
 > The most likely way for the world to be destroyed, most experts
 > agree, is by accident.  That's where we come in.  We're computer
 > professionals.  We cause accidents.

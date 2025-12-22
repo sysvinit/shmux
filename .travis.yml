@@ -1,5 +1,0 @@
-language: c
-addons:
-  apt:
-    packages:
-      - libtinfo-dev
