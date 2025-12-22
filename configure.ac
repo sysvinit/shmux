@@ -1,12 +1,9 @@
-#
-# $Id$
-#
-AC_PREREQ([2.69])
+AC_PREREQ([2.72])
 AC_INIT
 AC_CONFIG_SRCDIR([Shell Multiplexor])
 AC_REVISION([$Id$])
 AC_CONFIG_SRCDIR([src/os.h])
-AC_CONFIG_HEADER([src/config.h])
+AC_CONFIG_HEADERS([src/config.h])
 
 AC_CANONICAL_TARGET
 
@@ -14,7 +11,7 @@ AC_CANONICAL_TARGET
 AC_PROG_CC
 AC_PROG_INSTALL
 
-# 
+#
 AC_ARG_WITH([pcre], AS_HELP_STRING([--with-pcre=DIR],[Support Perl Compatible Regular Expressions (default)]))
 AC_ARG_WITH([pcre], AS_HELP_STRING([--without-pcre],[Do not support Perl Compatible Regular Expressions]))
 if test "x$with_pcre" != "xno"; then

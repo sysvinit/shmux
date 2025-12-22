@@ -3,17 +3,17 @@
 /* Define if poll() can't handle /dev/tty file descriptors */
 #undef BROKEN_POLL
 
-/* Define to 1 if you have the `basename' function. */
+/* Define to 1 if you have the 'basename' function. */
 #undef HAVE_BASENAME
 
 /* Define to 1 if you have the <curses.h> header file. */
 #undef HAVE_CURSES_H
 
-/* Define to 1 if you have the declaration of `sys_signame', and to 0 if you
+/* Define to 1 if you have the declaration of 'sys_signame', and to 0 if you
    don't. */
 #undef HAVE_DECL_SYS_SIGNAME
 
-/* Define to 1 if you have the `getloadavg' function. */
+/* Define to 1 if you have the 'getloadavg' function. */
 #undef HAVE_GETLOADAVG
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -21,9 +21,6 @@
 
 /* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the <paths.h> header file. */
 #undef HAVE_PATHS_H
@@ -34,6 +31,9 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
@@ -43,7 +43,7 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strlcpy' function. */
+/* Define to 1 if you have the 'strlcpy' function. */
 #undef HAVE_STRLCPY
 
 /* Define to 1 if you have the <sys/loadavg.h> header file. */
@@ -82,8 +82,10 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
-/* Define to `int' if <sys/types.h> does not define. */
+/* Define as a signed integer type capable of holding a process identifier. */
 #undef pid_t
