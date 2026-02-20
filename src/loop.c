@@ -64,7 +64,7 @@ static int spawn_mode;
 static int failure_mode = SPAWN_MORE; /* Historical default */
 
 static void shmux_sigint(int);
-static void setup_fdlimit(int, int);
+static void setup_fdlimit(int, int *);
 static void init_child(struct child *);
 static void parse_child(char *, int, int, int, struct child *, int, char *);
 static void parse_fping(char *);
@@ -91,7 +91,7 @@ shmux_sigint(int sig)
 **	achieve when we run out.
 */
 void
-setup_fdlimit(int fdfactor, int max)
+setup_fdlimit(int fdfactor, int *max)
 {
     struct rlimit fdlimit;
 
@@ -108,9 +108,9 @@ setup_fdlimit(int fdfactor, int max)
 	eprint("getrlimit(RLIMIT_NOFILE): %s", strerror(errno));
 	exit(RC_ERROR);
       }
-    if (fdlimit.rlim_cur < (max + 3) * fdfactor + 10)
+    if (fdlimit.rlim_cur < (*max + 3) * fdfactor + 10)
       {
-	fdlimit.rlim_cur = (max + 3) * fdfactor + 10;
+	fdlimit.rlim_cur = (*max + 3) * fdfactor + 10;
 	if (fdlimit.rlim_cur > fdlimit.rlim_max)
 	    fdlimit.rlim_cur = fdlimit.rlim_max;
 
@@ -123,37 +123,15 @@ setup_fdlimit(int fdfactor, int max)
 	    eprint("getrlimit(RLIMIT_NOFILE): %s", strerror(errno));
 	    eprint("Unable to validate parallelism factor.");
 	  }
-	else if (fdlimit.rlim_cur < (max + 3) * fdfactor + 10)
+	else if (fdlimit.rlim_cur < (*max + 3) * fdfactor + 10)
 	  {
 	    int old;
 
-	    old = max;
-	    max = ((fdlimit.rlim_cur - 10) / fdfactor) - 3;
-	    eprint("Reducing parallelism factor to %d (from %d) because of system limitation.", max, old);
+	    old = *max;
+	    *max = ((fdlimit.rlim_cur - 10) / fdfactor) - 3;
+	    eprint("Reducing parallelism factor to %d (from %d) because of system limitation.", *max, old);
 	  }
       }
-	
-#if defined(__NetBSD__)
-    /* See NetBSD PR#17507 */
-    {
-      int i, *fds;
-      
-      fds = (int *) malloc(fdlimit.rlim_cur * sizeof(int));
-      if (fds == NULL)
-	{
-	  perror("malloc failed");
-	  exit(RC_ERROR);
-	}
-      i = -1;
-      do
-	  fds[++i] = dup(0);
-      while (i < fdlimit.rlim_cur && fds[i] != -1);
-      dprint("Duped %d fds to get around NetBSD's broken poll(2)", i);
-      while (i >= 0)
-	  close(fds[i--]);
-      free(fds);
-    }
-#endif
 }
 
 /*
@@ -808,7 +786,7 @@ loop(char *cmd, u_int ctimeout, int max, char *spawn, int fail, int outmode, cha
         failure_mode = SPAWN_QUIT;
 
     /* review process fd limit */
-    setup_fdlimit((odir == NULL) ? 3 : 5, max);
+    setup_fdlimit((odir == NULL) ? 3 : 5, &max);
 
     /* Allocate and initialize the control structures */
     pfd = (struct pollfd *) malloc((max+2)*3 * sizeof(struct pollfd));
